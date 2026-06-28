@@ -1,0 +1,664 @@
+:root {
+  color: #1b1f23;
+  background: #f5f2ed;
+  font-family:
+    Inter, "Yu Gothic UI", "Hiragino Sans", "Meiryo", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+textarea,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #1f3430;
+  color: #fff;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0.55rem 0.9rem;
+}
+
+.secondaryButton {
+  background: #fffdf8;
+  border-color: #9aa9a2;
+  color: #1f3430;
+}
+
+button:disabled {
+  background: #d7d0c7;
+  border-color: #c2b8ad;
+  color: #6d6258;
+  cursor: not-allowed;
+}
+
+textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+textarea,
+input,
+select {
+  border: 1px solid #c7beb4;
+  border-radius: 6px;
+  color: #1b1f23;
+  padding: 0.75rem;
+  width: 100%;
+}
+
+.appShell {
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: 1.5rem;
+}
+
+.pageHeader {
+  align-items: center;
+  border-bottom: 1px solid #d7d0c7;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0 1.25rem;
+}
+
+.pageHeader h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin: 0.2rem 0 0;
+}
+
+.eyebrow,
+.sectionLabel {
+  color: #70665d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.headerBadge,
+.statusPill,
+.tag {
+  align-items: center;
+  border: 1px solid #c7beb4;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.78rem;
+  min-height: 28px;
+  padding: 0.25rem 0.65rem;
+  white-space: nowrap;
+}
+
+.headerControls {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.headerControls label {
+  color: #70665d;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.headerControls select {
+  min-width: 150px;
+  width: auto;
+}
+
+.headerBadge {
+  background: #fffaf2;
+  color: #5a4736;
+}
+
+.customerHeader {
+  align-items: flex-start;
+}
+
+.customerHeader .headerControls {
+  opacity: 0.82;
+}
+
+.actionCenter,
+.customerNextStep {
+  background: #f8fbf8;
+  border: 1px solid #cbdad1;
+  border-radius: 8px;
+  margin: 1.25rem 0;
+  padding: 1rem;
+}
+
+.actionCenter {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 2fr);
+}
+
+.actionCenterLead h2,
+.customerNextStep h2 {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.actionCenterLead p,
+.customerNextStep p,
+.workflowTask p,
+.shareActions p,
+.confirmationPanel p {
+  color: #5f6a64;
+  margin: 0;
+}
+
+.taskRail {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workflowTask {
+  align-items: flex-start;
+  background: #fffdf8;
+  border: 1px solid #d7e2da;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: auto 1fr;
+  padding: 0.9rem;
+}
+
+.workflowTaskNumber {
+  align-items: center;
+  background: #1f3430;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-weight: 700;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.workflowTaskHeader {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.workflowTaskHeader h3,
+.shareActions h3,
+.confirmationPanel h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.workflowTaskHeader span {
+  background: #eef4f2;
+  border: 1px solid #c7d6d1;
+  border-radius: 999px;
+  color: #24443a;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.workflowTask button {
+  margin-top: 0.7rem;
+}
+
+.customerNextStep {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.customerStatusList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 220px;
+}
+
+.customerStatusList div {
+  background: #fffdf8;
+  border: 1px solid #d7e2da;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.customerStatusList dt {
+  color: #6a746f;
+  font-size: 0.78rem;
+}
+
+.customerStatusList dd {
+  font-weight: 700;
+  margin: 0.2rem 0 0;
+}
+
+.statusPill {
+  background: #eee7de;
+  color: #3c342d;
+}
+
+.statusPill.success {
+  background: #e4f1e8;
+  border-color: #b8d2c0;
+  color: #21452f;
+}
+
+.statusPill.warning {
+  background: #fff2d7;
+  border-color: #dcc38c;
+  color: #61450f;
+}
+
+.metrics {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin: 1.25rem 0;
+}
+
+.metric {
+  background: #fffdf8;
+  border: 1px solid #ddd4c9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.metric span {
+  color: #70665d;
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+
+.metric strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.workspaceGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+}
+
+.panelSlot {
+  display: block;
+  min-width: 0;
+  outline: none;
+}
+
+.panelSlot:focus-visible {
+  box-shadow: 0 0 0 3px rgba(31, 52, 48, 0.22);
+}
+
+.wideSlot {
+  grid-row: span 2;
+}
+
+.panel {
+  background: #fffdf8;
+  border: 1px solid #ddd4c9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.panelWide {
+  min-height: 100%;
+}
+
+.panelHeader {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panelHeader h2 {
+  font-size: 1.15rem;
+  line-height: 1.25;
+  margin: 0.2rem 0 0;
+}
+
+.detailGrid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.detailGrid.compact {
+  grid-template-columns: 1fr;
+}
+
+.detailGrid div {
+  min-width: 0;
+}
+
+.detailGrid dt {
+  color: #70665d;
+  font-size: 0.78rem;
+  margin-bottom: 0.25rem;
+}
+
+.detailGrid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  background: #eef4f2;
+  border-color: #c7d6d1;
+}
+
+.meetingMeta {
+  color: #5f564e;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 0.8rem;
+}
+
+.fieldLabel {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.transcriptDisclosure {
+  border: 1px solid #e2d8cc;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+}
+
+.transcriptDisclosure summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.transcriptDisclosure textarea {
+  margin-top: 0.75rem;
+}
+
+.actionRow {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.inlineNotice,
+.emptyText {
+  color: #70665d;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.summaryGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summaryColumn {
+  background: #f8f4ee;
+  border: 1px solid #e2d8cc;
+  border-radius: 6px;
+  padding: 0.85rem;
+}
+
+.summaryColumn h3,
+.subheading {
+  font-size: 0.95rem;
+  margin: 0 0 0.55rem;
+}
+
+.summaryColumn ul,
+.plainList {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.summaryColumn li,
+.plainList li {
+  margin: 0.35rem 0;
+}
+
+.previewLead {
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.shareActions,
+.confirmationPanel {
+  background: #fffdf8;
+  border: 1px solid #d7e2da;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.shareActions {
+  grid-column: auto;
+}
+
+.shareActionButtons,
+.confirmationActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.subheading {
+  margin-top: 1rem;
+}
+
+.scheduleList {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.scheduleItem {
+  align-items: center;
+  background: #f8f4ee;
+  border: 1px solid #e2d8cc;
+  border-radius: 6px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.8rem;
+}
+
+.scheduleItem.pending {
+  background: #eef4f2;
+  border-color: #8fb2a3;
+}
+
+.scheduleItem strong,
+.scheduleItem span {
+  display: block;
+}
+
+.scheduleItem span {
+  color: #70665d;
+  font-size: 0.86rem;
+  margin-top: 0.2rem;
+}
+
+.selectedButton {
+  background: #49675d;
+}
+
+.editForm {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.editForm h3 {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.editForm label {
+  color: #4b433c;
+  display: grid;
+  font-size: 0.85rem;
+  font-weight: 700;
+  gap: 0.35rem;
+}
+
+.disclosureForm {
+  border-top: 1px solid #e2d8cc;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.disclosureForm summary {
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.mobileTabs {
+  display: none;
+}
+
+.mobileTab {
+  background: #fffdf8;
+  border-color: #d7d0c7;
+  color: #1f3430;
+}
+
+.mobileTab.active {
+  background: #1f3430;
+  border-color: #1f3430;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .actionCenter,
+  .metrics,
+  .workspaceGrid,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panelWide {
+    grid-row: auto;
+  }
+
+  .wideSlot {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .appShell {
+    padding: 1rem 1rem 5rem;
+  }
+
+  .pageHeader,
+  .headerControls,
+  .customerNextStep,
+  .panelHeader,
+  .scheduleItem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .headerBadge {
+    justify-content: center;
+    white-space: normal;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobileTabs {
+    background: rgba(245, 242, 237, 0.96);
+    border-top: 1px solid #d7d0c7;
+    bottom: 0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+    left: 0;
+    padding: 0.6rem;
+    position: fixed;
+    right: 0;
+    z-index: 10;
+  }
+
+  .mobileTab {
+    border-radius: 6px;
+    font-size: 0.82rem;
+    min-height: 42px;
+    padding: 0.45rem 0.25rem;
+  }
+
+  .panelSlot {
+    display: block;
+  }
+
+  .mobilePanelHidden {
+    display: none;
+  }
+
+  .panel {
+    padding: 0.9rem;
+  }
+
+  .editForm button,
+  .actionRow button,
+  .shareActionButtons button,
+  .confirmationActions button,
+  .workflowTask button,
+  .scheduleItem button {
+    width: 100%;
+  }
+
+  .transcriptDisclosure {
+    padding: 0.65rem;
+  }
+}
