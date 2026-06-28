@@ -3,7 +3,6 @@ import { CustomerPortal } from "./components/CustomerPortal";
 import { PlannerWorkspace } from "./components/PlannerWorkspace";
 import { generateMockAiSummary } from "./domain/aiSummary";
 import {
-  addMeeting,
   addScheduleOptionToState,
   approveShareWorkflow,
   getSelectedCase,
@@ -15,7 +14,6 @@ import {
   updateCase,
   updateCustomer,
   updateMeeting,
-  updateMeetingTranscript
 } from "./domain/appState";
 import { canGenerateAiSummary } from "./domain/permissions";
 import { createSharePreview } from "./domain/sharePreview";
@@ -49,10 +47,6 @@ export default function App() {
         summary: generateMockAiSummary(meeting.transcript)
       })
     );
-  };
-
-  const handleTranscriptChange = (transcript: string) => {
-    setState((current) => updateMeetingTranscript(current, meeting.id, transcript));
   };
 
   return (
@@ -105,9 +99,7 @@ export default function App() {
           onCaseSave={(patch: Partial<WeddingCase>) =>
             setState((current) => updateCase(current, weddingCase.id, patch))
           }
-          onAddMeeting={(input) => setState((current) => addMeeting(current, input))}
           onGenerateSummary={handleGenerateSummary}
-          onTranscriptChange={handleTranscriptChange}
           onAddScheduleOption={(input) =>
             setState((current) => addScheduleOptionToState(current, input))
           }

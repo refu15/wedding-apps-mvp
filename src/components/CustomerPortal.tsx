@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { WorkspacePanel } from "../domain/accessControl";
 import type {
   CustomerSharePreview,
   ScheduleOption,
@@ -17,7 +16,7 @@ type CustomerPortalProps = {
   onSelectSchedule: (optionId: string) => void;
 };
 
-type CustomerPanel = Extract<WorkspacePanel, "sharePreview" | "schedule">;
+type CustomerPanel = "sharePreview" | "schedule";
 
 export function CustomerPortal({
   preview,
@@ -33,9 +32,9 @@ export function CustomerPortal({
       <section className="customerNextStep" aria-label="次の手続き">
         <div>
           <p className="sectionLabel">Next Step</p>
-          <h2>内容確認と日程選択</h2>
+          <h2>内容確認と候補選択</h2>
           <p>
-            共有内容を確認したうえで、次回打ち合わせの日程を選択してください。
+            共有内容を確認したうえで、提携先候補と候補枠を選択してください。
           </p>
         </div>
         <dl className="customerStatusList">
@@ -44,16 +43,16 @@ export function CustomerPortal({
             <dd>{shareStatusLabel(shareWorkflow)}</dd>
           </div>
           <div>
-            <dt>選択日程</dt>
+            <dt>選択候補</dt>
             <dd>{selectedScheduleLabel ?? "未選択"}</dd>
           </div>
         </dl>
       </section>
 
-      <nav className="mobileTabs" aria-label="表示セクション">
+      <nav className="sectionTabs" aria-label="表示セクション">
         <button
           type="button"
-          className={activePanel === "sharePreview" ? "mobileTab active" : "mobileTab"}
+          className={activePanel === "sharePreview" ? "sectionTab active" : "sectionTab"}
           aria-pressed={activePanel === "sharePreview"}
           onClick={() => setActivePanel("sharePreview")}
         >
@@ -61,31 +60,31 @@ export function CustomerPortal({
         </button>
         <button
           type="button"
-          className={activePanel === "schedule" ? "mobileTab active" : "mobileTab"}
+          className={activePanel === "schedule" ? "sectionTab active" : "sectionTab"}
           aria-pressed={activePanel === "schedule"}
           onClick={() => setActivePanel("schedule")}
         >
-          日程
+          候補
         </button>
       </nav>
 
-      <section className="workspaceGrid customerPortalGrid" aria-label="顧客向け手続き">
-        <div className={getPanelSlotClass(activePanel, "sharePreview")}>
-          <SharePreview preview={preview} />
-        </div>
-        <div className={getPanelSlotClass(activePanel, "schedule")}>
-          <SchedulePanel
-            canManage={false}
-            options={scheduleOptions}
-            onAddOption={() => undefined}
-            onSelect={onSelectSchedule}
-          />
-        </div>
+      <section className="sectionPageFrame" aria-label="顧客向け手続き">
+        {activePanel === "sharePreview" ? (
+          <div className="sectionPage">
+            <SharePreview preview={preview} />
+          </div>
+        ) : null}
+        {activePanel === "schedule" ? (
+          <div className="sectionPage">
+            <SchedulePanel
+              canManage={false}
+              options={scheduleOptions}
+              onAddOption={() => undefined}
+              onSelect={onSelectSchedule}
+            />
+          </div>
+        ) : null}
       </section>
     </>
   );
-}
-
-function getPanelSlotClass(activePanel: CustomerPanel, panel: CustomerPanel): string {
-  return activePanel === panel ? "panelSlot" : "panelSlot mobilePanelHidden";
 }

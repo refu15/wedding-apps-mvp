@@ -4,18 +4,18 @@ type NextActionCenterProps = {
   meeting: Meeting;
   selectedScheduleLabel: string | null;
   shareWorkflow: ShareWorkflow;
-  onGoToMeeting: () => void;
+  onGoToDrive: () => void;
   onGoToShare: () => void;
-  onGoToSchedule: () => void;
+  onGoToAssignment: () => void;
 };
 
 export function NextActionCenter({
   meeting,
   selectedScheduleLabel,
   shareWorkflow,
-  onGoToMeeting,
+  onGoToDrive,
   onGoToShare,
-  onGoToSchedule
+  onGoToAssignment
 }: NextActionCenterProps) {
   const summaryReady = meeting.summary !== null;
   const shareReady = summaryReady && shareWorkflow.approvalStatus === "approved";
@@ -26,21 +26,21 @@ export function NextActionCenter({
         <p className="sectionLabel">Next Actions</p>
         <h2>今日やること</h2>
         <p>
-          打ち合わせ内容を確認し、顧客共有を整えて、次回日程を確定する流れです。
+          Drive上の打ち合わせ証跡を確認し、共有版を承認して、提携先の空き確認へ進めます。
         </p>
       </div>
       <div className="taskRail" role="list">
         <WorkflowTask
           label="1"
-          title="打合せ処理"
+          title="Drive証跡"
           status={summaryReady ? "完了" : "要対応"}
           description={
             summaryReady
-              ? "AI要約が生成済みです。公開前に内容だけ確認してください。"
-              : "文字起こしを確認してAI要約を生成してください。"
+              ? "録音・文字起こし・要約を案件フォルダで確認できます。"
+              : "Drive文字起こしからAI要約を生成してください。"
           }
-          actionLabel="打合せを確認"
-          onAction={onGoToMeeting}
+          actionLabel="Driveを確認"
+          onAction={onGoToDrive}
         />
         <WorkflowTask
           label="2"
@@ -56,15 +56,15 @@ export function NextActionCenter({
         />
         <WorkflowTask
           label="3"
-          title="日程確定"
+          title="提携先アサイン"
           status={selectedScheduleLabel ? "選択済み" : "未選択"}
           description={
             selectedScheduleLabel
-              ? `${selectedScheduleLabel} が選択されています。`
-              : "顧客に提示する候補から確定枠を選びます。"
+              ? `${selectedScheduleLabel} が仮押さえ対象です。`
+              : "LINEで空き確認し、候補者を顧客に提示します。"
           }
-          actionLabel="日程を見る"
-          onAction={onGoToSchedule}
+          actionLabel="アサインを見る"
+          onAction={onGoToAssignment}
         />
       </div>
     </section>

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { getVisibleWorkspacePanels, type WorkspacePanel } from "../domain/accessControl";
 import type {
   Customer,
   CustomerSharePreview,
@@ -12,11 +11,13 @@ import type {
 } from "../domain/types";
 import { CustomerPanel } from "./CustomerPanel";
 import { DashboardMetrics } from "./DashboardMetrics";
-import { MeetingPanel } from "./MeetingPanel";
+import { DriveEvidencePanel } from "./DriveEvidencePanel";
 import { NextActionCenter } from "./NextActionCenter";
 import { SchedulePanel } from "./SchedulePanel";
 import { ShareActions } from "./ShareActions";
 import { SharePreview } from "./SharePreview";
+
+type PlannerSection = "overview" | "drive" | "share" | "assignment";
 
 type PlannerWorkspaceProps = {
   role: Exclude<UserRole, "customer">;
@@ -29,11 +30,7 @@ type PlannerWorkspaceProps = {
   selectedScheduleLabel: string | null;
   onCustomerSave: (patch: Partial<Customer>) => void;
   onCaseSave: (patch: Partial<WeddingCase>) => void;
-  onAddMeeting: (
-    input: Pick<Meeting, "title" | "scheduledAt" | "location" | "transcript">
-  ) => void;
   onGenerateSummary: () => void;
-  onTranscriptChange: (transcript: string) => void;
   onAddScheduleOption: (input: Omit<ScheduleOption, "id" | "caseId" | "status">) => void;
   onSelectSchedule: (optionId: string) => void;
   onApproveShare: () => void;
@@ -52,25 +49,21 @@ export function PlannerWorkspace({
   selectedScheduleLabel,
   onCustomerSave,
   onCaseSave,
-  onAddMeeting,
   onGenerateSummary,
-  onTranscriptChange,
   onAddScheduleOption,
   onSelectSchedule,
   onApproveShare,
   onSendShare,
   onCopyFeedback
 }: PlannerWorkspaceProps) {
-  const visiblePanels = getVisibleWorkspacePanels(role);
-  const [activePanel, setActivePanel] = useState<WorkspacePanel>("customer");
-  const panelRefs = useRef<Partial<Record<WorkspacePanel, HTMLDivElement | null>>>({});
+  const [activeSection, setActiveSection] = useState<PlannerSection>("overview");
+  const pageRef = useRef<HTMLDivElement | null>(null);
 
-  const goToPanel = (panel: WorkspacePanel) => {
-    setActivePanel(panel);
+  const goToSection = (section: PlannerSection) => {
+    setActiveSection(section);
     window.requestAnimationFrame(() => {
-      const target = panelRefs.current[panel];
-      target?.scrollIntoView({ block: "start", behavior: "smooth" });
-      target?.focus({ preventScroll: true });
+      pageRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+      pageRef.current?.focus({ preventScroll: true });
     });
   };
 
@@ -80,7 +73,7 @@ export function PlannerWorkspace({
       sharePreview.case.title,
       `会場候補: ${sharePreview.case.venueCandidate}`,
       `共有メモ: ${sharePreview.meeting.publicNotes.join(" / ")}`,
-      `日程候補: ${scheduleOptions.map((option) => option.label).join(", ")}`
+      `候補者: ${scheduleOptions.map((option) => option.label).join(", ")}`
     ].join("\n");
 
     if (!navigator.clipboard) {
@@ -98,106 +91,88 @@ export function PlannerWorkspace({
 
   return (
     <>
-      <NextActionCenter
-        meeting={meeting}
-        selectedScheduleLabel={selectedScheduleLabel}
-        shareWorkflow={shareWorkflow}
-        onGoToMeeting={() => goToPanel("meeting")}
-        onGoToShare={() => goToPanel("sharePreview")}
-        onGoToSchedule={() => goToPanel("schedule")}
-      />
-
-      <DashboardMetrics
-        meeting={meeting}
-        scheduleOptions={scheduleOptions}
-        sharePreview={sharePreview}
-        role={role}
-      />
-
-      <nav className="mobileTabs" aria-label="表示セクション">
-        {visiblePanels.map((panel) => (
+      <nav className="sectionTabs" aria-label="業務セクション">
+        {plannerSections.map((section) => (
           <button
             type="button"
-            key={panel}
-            className={activePanel === panel ? "mobileTab active" : "mobileTab"}
-            aria-pressed={activePanel === panel}
-            onClick={() => goToPanel(panel)}
+            key={section.id}
+            className={activeSection === section.id ? "sectionTab active" : "sectionTab"}
+            aria-pressed={activeSection === section.id}
+            onClick={() => goToSection(section.id)}
           >
-            {panelLabels[panel]}
+            {section.label}
           </button>
         ))}
       </nav>
 
-      <section className="workspaceGrid" aria-label="プランナー業務フロー">
-        <div
-          ref={(node) => {
-            panelRefs.current.customer = node;
-          }}
-          className={getPanelSlotClass(activePanel, "customer")}
-          tabIndex={-1}
-        >
-          <CustomerPanel
-            customer={customer}
-            weddingCase={weddingCase}
-            onCustomerSave={onCustomerSave}
-            onCaseSave={onCaseSave}
-          />
-        </div>
-        <div
-          ref={(node) => {
-            panelRefs.current.meeting = node;
-          }}
-          className={`${getPanelSlotClass(activePanel, "meeting")} wideSlot`}
-          tabIndex={-1}
-        >
-          <MeetingPanel
-            meeting={meeting}
-            onAddMeeting={onAddMeeting}
-            onGenerateSummary={onGenerateSummary}
-            onTranscriptChange={onTranscriptChange}
-          />
-        </div>
-        <div
-          ref={(node) => {
-            panelRefs.current.sharePreview = node;
-          }}
-          className={getPanelSlotClass(activePanel, "sharePreview")}
-          tabIndex={-1}
-        >
-          <SharePreview preview={sharePreview} />
-          <ShareActions
-            shareWorkflow={shareWorkflow}
-            onApprove={onApproveShare}
-            onSend={onSendShare}
-            onCopy={handleCopyShareText}
-          />
-        </div>
-        <div
-          ref={(node) => {
-            panelRefs.current.schedule = node;
-          }}
-          className={getPanelSlotClass(activePanel, "schedule")}
-          tabIndex={-1}
-        >
-          <SchedulePanel
-            canManage
-            options={scheduleOptions}
-            onAddOption={onAddScheduleOption}
-            onSelect={onSelectSchedule}
-          />
-        </div>
-      </section>
+      <div ref={pageRef} className="sectionPageFrame" tabIndex={-1}>
+        {activeSection === "overview" ? (
+          <section className="sectionPage" aria-label="案件概要">
+            <NextActionCenter
+              meeting={meeting}
+              selectedScheduleLabel={selectedScheduleLabel}
+              shareWorkflow={shareWorkflow}
+              onGoToDrive={() => goToSection("drive")}
+              onGoToShare={() => goToSection("share")}
+              onGoToAssignment={() => goToSection("assignment")}
+            />
+            <DashboardMetrics
+              meeting={meeting}
+              scheduleOptions={scheduleOptions}
+              sharePreview={sharePreview}
+              role={role}
+            />
+            <CustomerPanel
+              customer={customer}
+              weddingCase={weddingCase}
+              onCustomerSave={onCustomerSave}
+              onCaseSave={onCaseSave}
+            />
+          </section>
+        ) : null}
+
+        {activeSection === "drive" ? (
+          <DriveEvidencePanel meeting={meeting} onGenerateSummary={onGenerateSummary} />
+        ) : null}
+
+        {activeSection === "share" ? (
+          <section className="sectionPage" aria-label="顧客共有">
+            <SharePreview preview={sharePreview} />
+            <ShareActions
+              shareWorkflow={shareWorkflow}
+              onApprove={onApproveShare}
+              onSend={onSendShare}
+              onCopy={handleCopyShareText}
+            />
+          </section>
+        ) : null}
+
+        {activeSection === "assignment" ? (
+          <section className="sectionPage" aria-label="提携先アサイン">
+            <div className="sectionHero">
+              <p className="sectionLabel">Partner Assignment</p>
+              <h2>空き確認と仮押さえ</h2>
+              <p>
+                元資料の課題は、顧客の日程調整だけではなく、カメラマン等の提携先に一括で空き確認し、
+                候補者を顧客が選べる状態にすることです。
+              </p>
+            </div>
+            <SchedulePanel
+              canManage
+              options={scheduleOptions}
+              onAddOption={onAddScheduleOption}
+              onSelect={onSelectSchedule}
+            />
+          </section>
+        ) : null}
+      </div>
     </>
   );
 }
 
-const panelLabels: Record<WorkspacePanel, string> = {
-  customer: "顧客",
-  meeting: "打合せ",
-  sharePreview: "共有",
-  schedule: "日程"
-};
-
-function getPanelSlotClass(activePanel: WorkspacePanel, panel: WorkspacePanel): string {
-  return activePanel === panel ? "panelSlot" : "panelSlot mobilePanelHidden";
-}
+const plannerSections: Array<{ id: PlannerSection; label: string }> = [
+  { id: "overview", label: "概要" },
+  { id: "drive", label: "Drive" },
+  { id: "share", label: "共有" },
+  { id: "assignment", label: "アサイン" }
+];

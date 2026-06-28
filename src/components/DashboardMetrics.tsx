@@ -24,7 +24,7 @@ export function DashboardMetrics({
         value={`${sharePreview.meeting.publicNotes.length}件の公開メモ`}
       />
       <Metric label="ロール" value={role} />
-      <Metric label="選択日程" value={selected?.label ?? "未選択"} />
+      <Metric label="仮押さえ候補" value={selected?.label ?? "未選択"} />
     </section>
   );
 }

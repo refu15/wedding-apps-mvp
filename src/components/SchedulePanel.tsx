@@ -25,13 +25,13 @@ export function SchedulePanel({
     <section className="panel">
       <div className="panelHeader">
         <div>
-          <p className="sectionLabel">Mock LINE Schedule</p>
-          <h2>日程調整</h2>
+          <p className="sectionLabel">LINE Availability</p>
+          <h2>提携先アサイン</h2>
         </div>
-        <span className="statusPill">LINEモック</span>
+        <span className="statusPill">空き確認モック</span>
       </div>
 
-      <div className="scheduleList" role="list" aria-label="日程候補">
+      <div className="scheduleList" role="list" aria-label="アサイン候補">
         {options.map((option) => (
           <div
             className={option.id === pendingOptionId ? "scheduleItem pending" : "scheduleItem"}
@@ -49,8 +49,8 @@ export function SchedulePanel({
               </span>
               <span>
                 {option.channel === "mock_line"
-                  ? "LINEでそのまま案内しやすい候補です。"
-                  : "メールで補足しやすい候補です。"}
+                  ? "LINEで提携先に一括確認し、仮押さえ候補として提示します。"
+                  : "メールで補足確認する候補です。"}
               </span>
             </div>
             <button
@@ -59,7 +59,7 @@ export function SchedulePanel({
               onClick={() => setPendingOptionId(option.id)}
               disabled={option.status === "selected"}
             >
-              {option.status === "selected" ? "確定済み" : "候補を確認"}
+              {option.status === "selected" ? "仮押さえ中" : "候補を確認"}
             </button>
           </div>
         ))}
@@ -68,13 +68,13 @@ export function SchedulePanel({
       <div className="confirmationPanel" aria-live="polite">
         <div>
           <p className="sectionLabel">Confirm</p>
-          <h3>確定前の確認</h3>
+          <h3>仮押さえ前の確認</h3>
           <p>
             {pendingOption
-              ? `${pendingOption.label} を選択中です。確定すると、この日程が次回打ち合わせ枠になります。`
+              ? `${pendingOption.label} を選択中です。仮押さえ後、空いている提携先とポートフォリオを顧客へ提示します。`
               : selectedOption
-                ? `${selectedOption.label} が確定済みです。変更する場合は別候補を確認してください。`
-                : "候補を選ぶと、ここに確定前の確認が表示されます。"}
+                ? `${selectedOption.label} を仮押さえ中です。変更する場合は別候補を確認してください。`
+                : "候補を選ぶと、ここに仮押さえ前の確認が表示されます。"}
           </p>
         </div>
         <div className="confirmationActions">
@@ -88,7 +88,7 @@ export function SchedulePanel({
             }}
             disabled={!pendingOption}
           >
-            この日程で確定
+            仮押さえする
           </button>
           <button
             type="button"
@@ -103,7 +103,7 @@ export function SchedulePanel({
 
       {canManage ? (
         <details className="disclosureForm">
-          <summary>日程候補を追加</summary>
+          <summary>空き確認候補を追加</summary>
           <form
             className="editForm"
             onSubmit={(event) => {
@@ -117,7 +117,7 @@ export function SchedulePanel({
             }}
           >
             <label>
-              表示ラベル
+              候補ラベル
               <input value={label} onChange={(event) => setLabel(event.target.value)} />
             </label>
             <label>
@@ -136,7 +136,7 @@ export function SchedulePanel({
                 onChange={(event) => setEndsAt(event.target.value)}
               />
             </label>
-            <button type="submit">候補を追加</button>
+            <button type="submit">空き確認候補を追加</button>
           </form>
         </details>
       ) : null}

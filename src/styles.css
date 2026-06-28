@@ -256,6 +256,130 @@ select {
   margin: 0.2rem 0 0;
 }
 
+.sectionTabs {
+  background: #f5f2ed;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  margin: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.5rem 0;
+}
+
+.sectionTab {
+  background: #fffdf8;
+  border-color: #d7d0c7;
+  color: #1f3430;
+  min-height: 44px;
+  padding: 0.45rem 0.4rem;
+}
+
+.sectionTab.active {
+  background: #1f3430;
+  border-color: #1f3430;
+  color: #fff;
+}
+
+.sectionPageFrame {
+  outline: none;
+}
+
+.sectionPageFrame:focus-visible {
+  box-shadow: 0 0 0 3px rgba(31, 52, 48, 0.22);
+}
+
+.sectionPage {
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionHero {
+  background: #f8fbf8;
+  border: 1px solid #cbdad1;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.sectionHero h2 {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.sectionHero p {
+  color: #5f6a64;
+  margin: 0;
+}
+
+.driveFolder {
+  align-items: center;
+  background: #fffdf8;
+  border: 1px solid #d7e2da;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.85rem;
+}
+
+.driveFolder > div {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.folderIcon {
+  background: #eef4f2;
+  border: 1px solid #c7d6d1;
+  border-radius: 6px;
+  color: #24443a;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.25rem 0.4rem;
+}
+
+.evidenceList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.evidenceItem {
+  align-items: flex-start;
+  background: #fffdf8;
+  border: 1px solid #ddd4c9;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.9rem;
+}
+
+.evidenceItem h3 {
+  font-size: 1rem;
+  margin: 0.25rem 0;
+}
+
+.evidenceItem p {
+  color: #5f6a64;
+  margin: 0;
+}
+
+.meetingRecord {
+  background: #fffdf8;
+  border: 1px solid #ddd4c9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.transcriptPreview {
+  color: #3f4743;
+  margin: 0.75rem 0 0;
+  white-space: pre-wrap;
+}
+
 .statusPill {
   background: #eee7de;
   color: #3c342d;
@@ -591,12 +715,14 @@ select {
 
 @media (max-width: 640px) {
   .appShell {
-    padding: 1rem 1rem 5rem;
+    padding: 1rem;
   }
 
   .pageHeader,
   .headerControls,
   .customerNextStep,
+  .driveFolder,
+  .evidenceItem,
   .panelHeader,
   .scheduleItem {
     align-items: stretch;
@@ -616,21 +742,12 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .mobileTabs {
-    background: rgba(245, 242, 237, 0.96);
-    border-top: 1px solid #d7d0c7;
-    bottom: 0;
+  .sectionTabs {
     display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
-    left: 0;
-    padding: 0.6rem;
-    position: fixed;
-    right: 0;
-    z-index: 10;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .mobileTab {
+  .sectionTab {
     border-radius: 6px;
     font-size: 0.82rem;
     min-height: 42px;
