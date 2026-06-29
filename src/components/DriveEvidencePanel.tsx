@@ -1,38 +1,26 @@
-import type { Meeting } from "../domain/types";
+import type { DriveAsset, Meeting, RecordingConsentLog } from "../domain/types";
 
 type DriveEvidencePanelProps = {
   meeting: Meeting;
+  assets: DriveAsset[];
+  consentLogs: RecordingConsentLog[];
   onGenerateSummary: () => void;
+  onSyncDrive: () => void;
+  onGrantConsent: () => void;
 };
 
-const driveFiles = [
-  {
-    title: "録音ファイル",
-    owner: "Google Drive / 案件フォルダ",
-    status: "保存済み",
-    detail: "打ち合わせ終了後に録音を案件フォルダへ格納"
-  },
-  {
-    title: "文字起こし",
-    owner: "Google Docs",
-    status: "確認待ち",
-    detail: "Tactiq / Fireflies等から取り込み、担当者が要点を確認"
-  },
-  {
-    title: "AI要約",
-    owner: "Google Docs",
-    status: "生成済み",
-    detail: "決定事項・未決事項・宿題・好みを共有前にレビュー"
-  },
-  {
-    title: "顧客共有版",
-    owner: "Google Docs / 共有リンク",
-    status: "未承認",
-    detail: "内部メモを除外した内容のみを顧客へ共有"
-  }
-];
+export function DriveEvidencePanel({
+  meeting,
+  assets,
+  consentLogs,
+  onGenerateSummary,
+  onSyncDrive,
+  onGrantConsent
+}: DriveEvidencePanelProps) {
+  const meetingAssets = assets.filter((asset) => asset.meetingId === meeting.id);
+  const meetingConsentLogs = consentLogs.filter((log) => log.meetingId === meeting.id);
+  const latestConsent = meetingConsentLogs[meetingConsentLogs.length - 1];
 
-export function DriveEvidencePanel({ meeting, onGenerateSummary }: DriveEvidencePanelProps) {
   return (
     <section className="sectionPage" aria-label="Google Drive証跡管理">
       <div className="sectionHero">
@@ -46,22 +34,37 @@ export function DriveEvidencePanel({ meeting, onGenerateSummary }: DriveEvidence
       <div className="driveFolder">
         <div>
           <span className="folderIcon" aria-hidden="true">Drive</span>
-          <strong>Drive / Wedding Crew / 松本様 / 初回相談</strong>
+          <strong>{meetingAssets[0]?.folderPath ?? "Drive / Wedding Crew / 未同期"}</strong>
         </div>
         <span className="statusPill success">権限: 担当者・管理者</span>
       </div>
 
       <div className="evidenceList" role="list">
-        {driveFiles.map((file) => (
-          <article className="evidenceItem" role="listitem" key={file.title}>
+        {meetingAssets.map((asset) => (
+          <article className="evidenceItem" role="listitem" key={asset.id}>
             <div>
-              <p className="sectionLabel">{file.owner}</p>
-              <h3>{file.title}</h3>
-              <p>{file.detail}</p>
+              <p className="sectionLabel">{asset.provider}</p>
+              <h3>{asset.name}</h3>
+              <p>{asset.url}</p>
             </div>
-            <span className="statusPill">{file.status}</span>
+            <span className="statusPill">{assetStatusLabel(asset.status)}</span>
           </article>
         ))}
+      </div>
+
+      <div className="consentBox">
+        <div>
+          <p className="sectionLabel">Consent</p>
+          <h3>録音・AI解析同意</h3>
+          <p>
+            {latestConsent
+              ? `${latestConsent.status} / ${latestConsent.policyVersion} / ${new Date(latestConsent.capturedAt).toLocaleString("ja-JP")}`
+              : "同意ログがありません。"}
+          </p>
+        </div>
+        <button type="button" className="secondaryButton" onClick={onGrantConsent}>
+          同意取得を記録
+        </button>
       </div>
 
       <div className="meetingRecord">
@@ -77,6 +80,9 @@ export function DriveEvidencePanel({ meeting, onGenerateSummary }: DriveEvidence
       </div>
 
       <div className="actionRow">
+        <button type="button" className="secondaryButton" onClick={onSyncDrive}>
+          Drive同期
+        </button>
         <button type="button" onClick={onGenerateSummary}>
           要約を再生成
         </button>
@@ -86,4 +92,15 @@ export function DriveEvidencePanel({ meeting, onGenerateSummary }: DriveEvidence
       </div>
     </section>
   );
+}
+
+function assetStatusLabel(status: DriveAsset["status"]): string {
+  const labels: Record<DriveAsset["status"], string> = {
+    missing: "未作成",
+    ready: "保存済み",
+    needs_review: "確認待ち",
+    shared: "共有済み"
+  };
+
+  return labels[status];
 }

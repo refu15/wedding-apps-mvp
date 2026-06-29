@@ -2,7 +2,15 @@ import { useRef, useState } from "react";
 import type {
   Customer,
   CustomerSharePreview,
+  AuditLog,
+  AvailabilityRequest,
+  DriveAsset,
+  IntegrationStatus,
   Meeting,
+  MessageLog,
+  OperationalError,
+  Partner,
+  RecordingConsentLog,
   ScheduleOption,
   ShareCopyFeedbackStatus,
   ShareWorkflow,
@@ -13,9 +21,10 @@ import { CustomerPanel } from "./CustomerPanel";
 import { DashboardMetrics } from "./DashboardMetrics";
 import { DriveEvidencePanel } from "./DriveEvidencePanel";
 import { NextActionCenter } from "./NextActionCenter";
-import { SchedulePanel } from "./SchedulePanel";
+import { PartnerAssignmentWorkflow } from "./PartnerAssignmentWorkflow";
 import { ShareActions } from "./ShareActions";
 import { SharePreview } from "./SharePreview";
+import { WorkflowLogicPanel } from "./WorkflowLogicPanel";
 
 type PlannerSection = "overview" | "drive" | "share" | "assignment";
 
@@ -25,12 +34,24 @@ type PlannerWorkspaceProps = {
   weddingCase: WeddingCase;
   meeting: Meeting;
   scheduleOptions: ScheduleOption[];
+  driveAssets: DriveAsset[];
+  consentLogs: RecordingConsentLog[];
+  partners: Partner[];
+  availabilityRequests: AvailabilityRequest[];
+  messageLogs: MessageLog[];
+  auditLogs: AuditLog[];
+  operationalErrors: OperationalError[];
+  integrationStatus: IntegrationStatus;
   sharePreview: CustomerSharePreview;
   shareWorkflow: ShareWorkflow;
   selectedScheduleLabel: string | null;
   onCustomerSave: (patch: Partial<Customer>) => void;
   onCaseSave: (patch: Partial<WeddingCase>) => void;
   onGenerateSummary: () => void;
+  onSyncDrive: () => void;
+  onGrantConsent: () => void;
+  onCreateAvailabilityRequest: () => void;
+  onSendQueuedMessages: () => void;
   onAddScheduleOption: (input: Omit<ScheduleOption, "id" | "caseId" | "status">) => void;
   onSelectSchedule: (optionId: string) => void;
   onApproveShare: () => void;
@@ -44,12 +65,24 @@ export function PlannerWorkspace({
   weddingCase,
   meeting,
   scheduleOptions,
+  driveAssets,
+  consentLogs,
+  partners,
+  availabilityRequests,
+  messageLogs,
+  auditLogs,
+  operationalErrors,
+  integrationStatus,
   sharePreview,
   shareWorkflow,
   selectedScheduleLabel,
   onCustomerSave,
   onCaseSave,
   onGenerateSummary,
+  onSyncDrive,
+  onGrantConsent,
+  onCreateAvailabilityRequest,
+  onSendQueuedMessages,
   onAddScheduleOption,
   onSelectSchedule,
   onApproveShare,
@@ -128,11 +161,26 @@ export function PlannerWorkspace({
               onCustomerSave={onCustomerSave}
               onCaseSave={onCaseSave}
             />
+            <WorkflowLogicPanel
+              driveAssets={driveAssets}
+              availabilityRequests={availabilityRequests}
+              messageLogs={messageLogs}
+              auditLogs={auditLogs}
+              operationalErrors={operationalErrors}
+              integrationStatus={integrationStatus}
+            />
           </section>
         ) : null}
 
         {activeSection === "drive" ? (
-          <DriveEvidencePanel meeting={meeting} onGenerateSummary={onGenerateSummary} />
+          <DriveEvidencePanel
+            meeting={meeting}
+            assets={driveAssets}
+            consentLogs={consentLogs}
+            onGenerateSummary={onGenerateSummary}
+            onSyncDrive={onSyncDrive}
+            onGrantConsent={onGrantConsent}
+          />
         ) : null}
 
         {activeSection === "share" ? (
@@ -157,11 +205,15 @@ export function PlannerWorkspace({
                 候補者を顧客が選べる状態にすることです。
               </p>
             </div>
-            <SchedulePanel
-              canManage
-              options={scheduleOptions}
-              onAddOption={onAddScheduleOption}
-              onSelect={onSelectSchedule}
+            <PartnerAssignmentWorkflow
+              partners={partners}
+              availabilityRequests={availabilityRequests}
+              messageLogs={messageLogs}
+              scheduleOptions={scheduleOptions}
+              onCreateAvailabilityRequest={onCreateAvailabilityRequest}
+              onSendQueuedMessages={onSendQueuedMessages}
+              onAddScheduleOption={onAddScheduleOption}
+              onSelectSchedule={onSelectSchedule}
             />
           </section>
         ) : null}

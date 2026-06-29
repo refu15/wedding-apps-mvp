@@ -44,5 +44,8 @@ describe("persistence", () => {
     expect(shareWorkflow.approvalStatus).toBe("draft");
     expect(loaded.shareWorkflow.caseId).toBe(legacyState.selectedCaseId);
     expect(loaded.shareWorkflow.approvalStatus).toBe("draft");
+    expect(loaded.driveAssets.length).toBeGreaterThan(0);
+    expect(loaded.partners.length).toBeGreaterThan(0);
+    expect(loaded.integrationStatus.database).toBe("local_storage");
   });
 });

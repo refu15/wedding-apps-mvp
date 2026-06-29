@@ -8,9 +8,13 @@ import {
   getSelectedCase,
   getSelectedCustomer,
   getSelectedMeeting,
+  grantRecordingConsentForSelectedMeeting,
   markShareCopyFeedback,
+  requestPartnerAvailabilityForState,
   selectScheduleOptionForState,
+  sendQueuedMessagesForState,
   sendShareWorkflow,
+  syncSelectedMeetingToDrive,
   updateCase,
   updateCustomer,
   updateMeeting,
@@ -90,6 +94,14 @@ export default function App() {
           weddingCase={weddingCase}
           meeting={meeting}
           scheduleOptions={scheduleOptions}
+          driveAssets={state.driveAssets}
+          consentLogs={state.consentLogs}
+          partners={state.partners}
+          availabilityRequests={state.availabilityRequests}
+          messageLogs={state.messageLogs}
+          auditLogs={state.auditLogs}
+          operationalErrors={state.operationalErrors}
+          integrationStatus={state.integrationStatus}
           sharePreview={sharePreview}
           shareWorkflow={state.shareWorkflow}
           selectedScheduleLabel={selectedSchedule?.label ?? null}
@@ -100,6 +112,27 @@ export default function App() {
             setState((current) => updateCase(current, weddingCase.id, patch))
           }
           onGenerateSummary={handleGenerateSummary}
+          onSyncDrive={() => setState((current) => syncSelectedMeetingToDrive(current))}
+          onGrantConsent={() =>
+            setState((current) =>
+              grantRecordingConsentForSelectedMeeting(current, customer.primaryName)
+            )
+          }
+          onCreateAvailabilityRequest={() =>
+            setState((current) =>
+              requestPartnerAvailabilityForState(
+                current,
+                "photographer",
+                weddingCase.weddingDate
+                  ? `${weddingCase.weddingDate}T10:00:00+09:00`
+                  : "2027-04-18T10:00:00+09:00",
+                "2026-07-09T18:00:00+09:00"
+              )
+            )
+          }
+          onSendQueuedMessages={() =>
+            setState((current) => sendQueuedMessagesForState(current))
+          }
           onAddScheduleOption={(input) =>
             setState((current) => addScheduleOptionToState(current, input))
           }

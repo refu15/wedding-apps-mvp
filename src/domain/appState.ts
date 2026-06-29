@@ -1,15 +1,31 @@
 import { generateMockAiSummary } from "./aiSummary";
+import { createAvailabilityRequest, recordAvailabilityResponse } from "./assignment";
+import { grantRecordingConsent, createConsentLog } from "./consent";
+import { createCustomerShareText } from "./customerShare";
+import { createDriveAssetsForMeeting, upsertDriveAssets } from "./driveWorkflow";
+import { markMessagesSent, queueAvailabilityMessages, queueCustomerShareMessage } from "./messaging";
+import { createAuditLog } from "./operations";
 import {
+  sampleAuditLogs,
+  sampleAvailabilityRequests,
   sampleCase,
+  sampleConsentLogs,
   sampleCustomer,
+  sampleDriveAssets,
+  sampleIntegrationStatus,
   sampleMeeting,
+  sampleMessageLogs,
+  sampleOperationalErrors,
+  samplePartners,
   sampleScheduleOptions
 } from "./sampleData";
 import { createScheduleOption, selectScheduleOption } from "./scheduling";
 import type {
   AppState,
+  AvailabilityResponse,
   Customer,
   Meeting,
+  PartnerRole,
   ShareCopyFeedbackStatus,
   ScheduleOption,
   WeddingCase
@@ -21,6 +37,14 @@ export function createInitialAppState(): AppState {
     cases: [sampleCase],
     meetings: [sampleMeeting],
     scheduleOptions: sampleScheduleOptions,
+    driveAssets: sampleDriveAssets,
+    consentLogs: sampleConsentLogs,
+    partners: samplePartners,
+    availabilityRequests: sampleAvailabilityRequests,
+    messageLogs: sampleMessageLogs,
+    auditLogs: sampleAuditLogs,
+    operationalErrors: sampleOperationalErrors,
+    integrationStatus: sampleIntegrationStatus,
     shareLinks: [
       {
         token: "share-case-1-meeting-1",
@@ -138,6 +162,65 @@ export function updateMeeting(state: AppState, meeting: Meeting): AppState {
   };
 }
 
+export function grantRecordingConsentForSelectedMeeting(
+  state: AppState,
+  grantedBy: string,
+  policyVersion = "v0.1"
+): AppState {
+  const now = new Date().toISOString();
+  const meeting = grantRecordingConsent(
+    getSelectedMeeting(state),
+    grantedBy,
+    policyVersion,
+    now
+  );
+  const consentLog = createConsentLog(
+    state.selectedCustomerId,
+    meeting,
+    "manual",
+    now
+  );
+
+  return {
+    ...updateMeeting(state, meeting),
+    consentLogs: [...state.consentLogs, consentLog],
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "recording_consent_granted",
+        entityType: "consent",
+        entityId: consentLog.id,
+        detail: `${grantedBy} が録音同意を付与`,
+        now
+      })
+    ]
+  };
+}
+
+export function syncSelectedMeetingToDrive(state: AppState): AppState {
+  const now = new Date().toISOString();
+  const meeting = getSelectedMeeting(state);
+  const weddingCase = getSelectedCase(state);
+  const assets = createDriveAssetsForMeeting(weddingCase, meeting, now);
+
+  return {
+    ...state,
+    driveAssets: upsertDriveAssets(state.driveAssets, assets),
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "drive_assets_synced",
+        entityType: "drive_asset",
+        entityId: meeting.id,
+        detail: "録音・文字起こし・AI要約・顧客共有版をDrive案件フォルダへ同期",
+        now
+      })
+    ]
+  };
+}
+
 export function addScheduleOptionToState(
   state: AppState,
   input: Omit<ScheduleOption, "id" | "caseId" | "status">
@@ -175,10 +258,29 @@ export function sendShareWorkflow(state: AppState): AppState {
     return state;
   }
 
-  return updateShareWorkflow(state, {
+  const now = new Date().toISOString();
+  const shareBody = createCustomerShareText(getSelectedCase(state), getSelectedMeeting(state));
+  const message = queueCustomerShareMessage(getSelectedCustomer(state), shareBody, now);
+  const workflowState = updateShareWorkflow(state, {
     deliveryStatus: "sent",
     copyFeedbackStatus: "idle"
   });
+
+  return {
+    ...workflowState,
+    messageLogs: markMessagesSent([...state.messageLogs, message], [message.id], now),
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "customer_share_sent",
+        entityType: "message",
+        entityId: message.id,
+        detail: "顧客共有メッセージを送信モックで記録",
+        now
+      })
+    ]
+  };
 }
 
 export function markShareCopyFeedback(
@@ -201,6 +303,96 @@ function updateShareWorkflow(
       ...patch,
       updatedAt: new Date().toISOString()
     }
+  };
+}
+
+export function requestPartnerAvailabilityForState(
+  state: AppState,
+  role: PartnerRole,
+  eventDate: string,
+  responseDeadline: string
+): AppState {
+  const now = new Date().toISOString();
+  const weddingCase = getSelectedCase(state);
+  const request = createAvailabilityRequest({
+    caseId: state.selectedCaseId,
+    eventDate,
+    role,
+    responseDeadline,
+    partners: state.partners,
+    now
+  });
+  const messages = queueAvailabilityMessages(request, state.partners, weddingCase, now);
+
+  return {
+    ...state,
+    availabilityRequests: [
+      ...state.availabilityRequests.filter((item) => item.id !== request.id),
+      request
+    ],
+    messageLogs: [...state.messageLogs, ...messages],
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "availability_requested",
+        entityType: "availability_request",
+        entityId: request.id,
+        detail: `${request.partnerIds.length}名へ空き確認を作成`,
+        now
+      })
+    ]
+  };
+}
+
+export function recordPartnerAvailabilityResponseForState(
+  state: AppState,
+  requestId: string,
+  response: Omit<AvailabilityResponse, "respondedAt">
+): AppState {
+  const now = new Date().toISOString();
+
+  return {
+    ...state,
+    availabilityRequests: state.availabilityRequests.map((request) =>
+      request.id === requestId
+        ? recordAvailabilityResponse(request, { ...response, respondedAt: now }, now)
+        : request
+    ),
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "availability_response_recorded",
+        entityType: "availability_request",
+        entityId: requestId,
+        detail: `${response.partnerId} の空き回答を記録`,
+        now
+      })
+    ]
+  };
+}
+
+export function sendQueuedMessagesForState(state: AppState): AppState {
+  const now = new Date().toISOString();
+  const queuedIds = state.messageLogs
+    .filter((message) => message.status === "queued")
+    .map((message) => message.id);
+
+  return {
+    ...state,
+    messageLogs: markMessagesSent(state.messageLogs, queuedIds, now),
+    auditLogs: [
+      ...state.auditLogs,
+      createAuditLog({
+        actorRole: "planner",
+        action: "queued_messages_sent",
+        entityType: "message",
+        entityId: "bulk",
+        detail: `${queuedIds.length}件の通知を送信モックで記録`,
+        now
+      })
+    ]
   };
 }
 

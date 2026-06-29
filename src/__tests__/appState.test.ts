@@ -5,7 +5,10 @@ import {
   approveShareWorkflow,
   createInitialAppState,
   markShareCopyFeedback,
+  requestPartnerAvailabilityForState,
+  sendQueuedMessagesForState,
   sendShareWorkflow,
+  syncSelectedMeetingToDrive,
   updateCustomer,
   updateMeetingTranscript
 } from "../domain/appState";
@@ -75,5 +78,49 @@ describe("appState CRUD operations", () => {
     expect(approved.shareWorkflow.approvalStatus).toBe("approved");
     expect(approved.shareWorkflow.copyFeedbackStatus).toBe("idle");
     expect(sent.shareWorkflow.deliveryStatus).toBe("sent");
+  });
+
+  it("syncs selected meeting evidence to Drive assets", () => {
+    const state = createInitialAppState();
+    const updated = syncSelectedMeetingToDrive({ ...state, driveAssets: [] });
+
+    expect(updated.driveAssets.map((asset) => asset.kind)).toEqual([
+      "recording",
+      "transcript",
+      "ai_summary",
+      "customer_share"
+    ]);
+    expect(updated.auditLogs.some((log) => log.action === "drive_assets_synced")).toBe(true);
+  });
+
+  it("creates partner availability requests and queued messages", () => {
+    const state = createInitialAppState();
+    const updated = requestPartnerAvailabilityForState(
+      state,
+      "photographer",
+      "2027-04-18T10:00:00+09:00",
+      "2026-07-09T18:00:00+09:00"
+    );
+
+    const request = updated.availabilityRequests[updated.availabilityRequests.length - 1];
+
+    expect(request.partnerIds).toEqual([
+      "partner-photo-1",
+      "partner-photo-2"
+    ]);
+    expect(updated.messageLogs.filter((message) => message.status === "queued").length).toBe(2);
+  });
+
+  it("marks queued messages as sent", () => {
+    const state = requestPartnerAvailabilityForState(
+      createInitialAppState(),
+      "photographer",
+      "2027-04-18T10:00:00+09:00",
+      "2026-07-09T18:00:00+09:00"
+    );
+
+    const updated = sendQueuedMessagesForState(state);
+
+    expect(updated.messageLogs.every((message) => message.status !== "queued")).toBe(true);
   });
 });

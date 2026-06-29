@@ -73,6 +73,112 @@ export type ScheduleOption = {
   status: "pending" | "selected" | "declined";
 };
 
+export type DriveAssetKind = "recording" | "transcript" | "ai_summary" | "customer_share";
+
+export type DriveAssetStatus = "missing" | "ready" | "needs_review" | "shared";
+
+export type DriveAsset = {
+  id: string;
+  caseId: string;
+  meetingId: string;
+  kind: DriveAssetKind;
+  name: string;
+  folderPath: string;
+  provider: "google_drive";
+  status: DriveAssetStatus;
+  url: string;
+  allowedRoles: UserRole[];
+  updatedAt: string;
+};
+
+export type RecordingConsentLog = {
+  id: string;
+  customerId: string;
+  meetingId: string;
+  status: RecordingConsent["status"];
+  policyVersion: string;
+  capturedAt: string;
+  channel: "online_meeting" | "salon" | "line" | "manual";
+};
+
+export type PartnerRole = "photographer" | "hair_make" | "planner" | "venue_staff";
+
+export type Partner = {
+  id: string;
+  name: string;
+  role: PartnerRole;
+  portfolioUrl: string;
+  tags: string[];
+  contactChannel: "line" | "email";
+  status: "active" | "paused";
+};
+
+export type AvailabilityResponseStatus = "available" | "unavailable" | "tentative";
+
+export type AvailabilityResponse = {
+  partnerId: string;
+  status: AvailabilityResponseStatus;
+  respondedAt: string;
+  note: string;
+};
+
+export type AvailabilityRequest = {
+  id: string;
+  caseId: string;
+  eventDate: string;
+  role: PartnerRole;
+  status: "draft" | "sent" | "collecting" | "ready" | "expired";
+  responseDeadline: string;
+  partnerIds: string[];
+  responses: AvailabilityResponse[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MessageLog = {
+  id: string;
+  channel: "line" | "email";
+  recipientType: "customer" | "partner";
+  recipientId: string;
+  template: "availability_request" | "customer_share" | "reminder";
+  status: "queued" | "sent" | "failed" | "read";
+  body: string;
+  createdAt: string;
+  sentAt: string | null;
+};
+
+export type AuditLog = {
+  id: string;
+  actorRole: UserRole;
+  action: string;
+  entityType:
+    | "drive_asset"
+    | "meeting"
+    | "share_workflow"
+    | "availability_request"
+    | "message"
+    | "consent";
+  entityId: string;
+  detail: string;
+  createdAt: string;
+};
+
+export type OperationalError = {
+  id: string;
+  area: "drive" | "ai" | "messaging" | "auth" | "assignment" | "persistence";
+  severity: "info" | "warning" | "critical";
+  message: string;
+  status: "open" | "resolved";
+  createdAt: string;
+};
+
+export type IntegrationStatus = {
+  drive: "mock_connected" | "needs_backend";
+  ai: "mock_connected" | "needs_backend";
+  messaging: "mock_connected" | "needs_backend";
+  database: "local_storage" | "needs_backend";
+};
+
 export type CustomerSharePreview = {
   customer: Pick<Customer, "primaryName" | "partnerName" | "preferredContact">;
   case: Pick<
@@ -117,6 +223,14 @@ export type AppState = {
   cases: WeddingCase[];
   meetings: Meeting[];
   scheduleOptions: ScheduleOption[];
+  driveAssets: DriveAsset[];
+  consentLogs: RecordingConsentLog[];
+  partners: Partner[];
+  availabilityRequests: AvailabilityRequest[];
+  messageLogs: MessageLog[];
+  auditLogs: AuditLog[];
+  operationalErrors: OperationalError[];
+  integrationStatus: IntegrationStatus;
   shareLinks: ShareLink[];
   shareWorkflow: ShareWorkflow;
   selectedCustomerId: string;

@@ -1,6 +1,19 @@
 import { generateMockAiSummary } from "./aiSummary";
 import { createScheduleOption, selectScheduleOption } from "./scheduling";
-import type { Customer, Meeting, ScheduleOption, WeddingCase } from "./types";
+import type {
+  AuditLog,
+  AvailabilityRequest,
+  DriveAsset,
+  IntegrationStatus,
+  Meeting,
+  MessageLog,
+  OperationalError,
+  Partner,
+  RecordingConsentLog,
+  ScheduleOption,
+  Customer,
+  WeddingCase
+} from "./types";
 
 export const sampleCustomer: Customer = {
   id: "customer-1",
@@ -78,3 +91,165 @@ export const sampleScheduleOptions = selectScheduleOption(
   pendingScheduleOptions,
   pendingScheduleOptions[1].id
 );
+
+const now = "2026-07-02T10:20:00+09:00";
+
+export const sampleDriveAssets: DriveAsset[] = [
+  {
+    id: "drive-recording-meeting-1",
+    caseId: sampleCase.id,
+    meetingId: sampleMeeting.id,
+    kind: "recording",
+    name: "初回相談_録音.mp4",
+    folderPath: "Drive / Wedding Crew / 松本様 / 初回相談",
+    provider: "google_drive",
+    status: "ready",
+    url: "https://drive.google.com/mock/recording-meeting-1",
+    allowedRoles: ["admin", "planner"],
+    updatedAt: now
+  },
+  {
+    id: "drive-transcript-meeting-1",
+    caseId: sampleCase.id,
+    meetingId: sampleMeeting.id,
+    kind: "transcript",
+    name: "初回相談_文字起こし",
+    folderPath: "Drive / Wedding Crew / 松本様 / 初回相談",
+    provider: "google_drive",
+    status: "needs_review",
+    url: "https://docs.google.com/document/d/mock-transcript-meeting-1",
+    allowedRoles: ["admin", "planner"],
+    updatedAt: now
+  },
+  {
+    id: "drive-summary-meeting-1",
+    caseId: sampleCase.id,
+    meetingId: sampleMeeting.id,
+    kind: "ai_summary",
+    name: "初回相談_AI要約",
+    folderPath: "Drive / Wedding Crew / 松本様 / 初回相談",
+    provider: "google_drive",
+    status: "ready",
+    url: "https://docs.google.com/document/d/mock-summary-meeting-1",
+    allowedRoles: ["admin", "planner"],
+    updatedAt: now
+  },
+  {
+    id: "drive-share-meeting-1",
+    caseId: sampleCase.id,
+    meetingId: sampleMeeting.id,
+    kind: "customer_share",
+    name: "初回相談_顧客共有版",
+    folderPath: "Drive / Wedding Crew / 松本様 / 初回相談",
+    provider: "google_drive",
+    status: "needs_review",
+    url: "https://docs.google.com/document/d/mock-share-meeting-1",
+    allowedRoles: ["admin", "planner", "customer"],
+    updatedAt: now
+  }
+];
+
+export const sampleConsentLogs: RecordingConsentLog[] = [
+  {
+    id: "consent-meeting-1",
+    customerId: sampleCustomer.id,
+    meetingId: sampleMeeting.id,
+    status: "granted",
+    policyVersion: "v0.1",
+    capturedAt: "2026-07-02T09:58:00+09:00",
+    channel: "online_meeting"
+  }
+];
+
+export const samplePartners: Partner[] = [
+  {
+    id: "partner-photo-1",
+    name: "佐藤 カメラ",
+    role: "photographer",
+    portfolioUrl: "https://example.com/portfolio/sato",
+    tags: ["家族写真", "ナチュラル", "塩釜対応"],
+    contactChannel: "line",
+    status: "active"
+  },
+  {
+    id: "partner-photo-2",
+    name: "高橋 フォト",
+    role: "photographer",
+    portfolioUrl: "https://example.com/portfolio/takahashi",
+    tags: ["少人数婚", "ドキュメンタリー"],
+    contactChannel: "email",
+    status: "active"
+  },
+  {
+    id: "partner-hair-1",
+    name: "鈴木 ヘアメイク",
+    role: "hair_make",
+    portfolioUrl: "https://example.com/portfolio/suzuki",
+    tags: ["和装", "持ち込み対応"],
+    contactChannel: "line",
+    status: "active"
+  }
+];
+
+export const sampleAvailabilityRequests: AvailabilityRequest[] = [
+  {
+    id: "availability-case-1-photo",
+    caseId: sampleCase.id,
+    eventDate: "2027-04-18T10:00:00+09:00",
+    role: "photographer",
+    status: "ready",
+    responseDeadline: "2026-07-09T18:00:00+09:00",
+    partnerIds: ["partner-photo-1", "partner-photo-2"],
+    responses: [
+      {
+        partnerId: "partner-photo-1",
+        status: "available",
+        respondedAt: "2026-07-02T12:00:00+09:00",
+        note: "終日対応可能"
+      },
+      {
+        partnerId: "partner-photo-2",
+        status: "tentative",
+        respondedAt: "2026-07-02T12:20:00+09:00",
+        note: "午後のみ仮対応可能"
+      }
+    ],
+    createdAt: now,
+    updatedAt: now
+  }
+];
+
+export const sampleMessageLogs: MessageLog[] = [
+  {
+    id: "message-availability-1",
+    channel: "line",
+    recipientType: "partner",
+    recipientId: "partner-photo-1",
+    template: "availability_request",
+    status: "sent",
+    body: "2027/4/18の撮影可否を確認してください。",
+    createdAt: now,
+    sentAt: now
+  }
+];
+
+export const sampleAuditLogs: AuditLog[] = [
+  {
+    id: "audit-initial-drive",
+    actorRole: "admin",
+    action: "drive_assets_initialized",
+    entityType: "drive_asset",
+    entityId: sampleMeeting.id,
+    detail: "初回相談のDrive証跡を初期化",
+    createdAt: now
+  }
+];
+
+export const sampleOperationalErrors: OperationalError[] = [];
+
+export const sampleIntegrationStatus: IntegrationStatus = {
+  drive: "mock_connected",
+  ai: "mock_connected",
+  messaging: "mock_connected",
+  database: "local_storage"
+};
